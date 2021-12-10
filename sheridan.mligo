@@ -19,14 +19,6 @@ let assert_level_is_open (level : level) : unit =
 let assert_valid_sha (bytes : bytes) : unit =
   assert (Bytes.length bytes = 32n)
 
-let find_commitment_map_for_level (level : level) (commitment_storage) : commitment_map
-  match Big_map.find_opt level commitment_storage with
-  | Some commitment_map -> 
-    if Map.mem Tezos.sender commitment_map then
-    (failwith "You already committed for this level" : commitment_map)
-    else
-      Map.add Tezos.sender sha commitment_map
-  | None -> ""
 
 let commit
   (level : level)
