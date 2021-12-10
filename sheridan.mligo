@@ -19,7 +19,6 @@ let assert_level_is_open (level : level) : unit =
 let assert_valid_sha (bytes : bytes) : unit =
   assert (Bytes.length bytes = 32n)
 
-
 let commit
   (level : level)
   (sha : sha)
