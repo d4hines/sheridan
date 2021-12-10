@@ -70,4 +70,5 @@ let reveal
     Big_map.add level reveal_level reveal_storage
 
 let main (_parameter, storage : unit * storage) : operation list * storage =
+  let (commit_storage, reveal_storage) = storage in
   (([] : operation list), storage)
