@@ -31,13 +31,16 @@ let commit
     (failwith "You already committed for this level" : commitment_map)
     else
       Map.add Tezos.sender sha commitment_map
-  | None -> (Map.empty : commitment_map)
+  | None -> (Map.add Tezos.sender sha (Map.empty : commitment_map))
   in
   Big_map.add level new_level commitment_storage
 
 
 let no_commit_found_msg = 
 "You did not commit for this level, and thus can't reveal"
+
+let assert_level_is_pending (level: level) : unit = 
+  assert (level < Tezos.level && level >= Tezos.level + interaction_time)
 
 let reveal 
   (level : level)
@@ -46,21 +49,25 @@ let reveal
   (reveal_storage : reveal_storage)
   : reveal_storage =
   let _ = assert ((Bytes.length bytes) = 64n) in
-  let new_level = match Big_map.find_opt level commitment_storage with
+  let _ = assert_level_is_pending level in
+  let reveal_level = match Big_map.find_opt level commitment_storage with
   | Some commitment_map -> 
     (
       match Map.find_opt Tezos.sender commitment_map with
       | Some sha -> 
         let calculated_sha = Crypto.sha256 bytes in
         let _ = assert (sha = calculated_sha) in
-        (failwith "foo" : reveal_map)
+        (match Big_map.find_opt level reveal_storage with
+        | Some reveals ->
+          Map.add Tezos.sender bytes reveals
+        | None -> Map.add Tezos.sender bytes (Map.empty : reveal_map))
       | None ->
         (failwith no_commit_found_msg : reveal_map)
     )
   | None ->
     (failwith no_commit_found_msg : reveal_map)
-  in
-  Big_map.add level new_level reveal_storage
+    in 
+    Big_map.add level reveal_level reveal_storage
 
 let main (_parameter, storage : unit * storage) : operation list * storage =
   (([] : operation list), storage)
