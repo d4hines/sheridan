@@ -99,6 +99,9 @@ let main ((level, op), (members, commitment_storage, reveal_storage) : parameter
     
 type view_params = level * address set 
 
+let combine_numbers (n1 : nat) (n2 : nat) = 
+  Bitwise.shift_right (n1 + n2) 1n
+
 [@view]
 let view_number ((view_params, storage) : (view_params * storage)) : nat option = 
   let (_, _, reveal_storage) = storage in 
@@ -109,7 +112,7 @@ let view_number ((view_params, storage) : (view_params * storage)) : nat option 
     (match acc with
     | Some acc ->
       (match Map.find_opt addr reveals with
-       | Some n -> Some (Bitwise.shift_right (acc + n) 1n)
+       | Some n -> Some (combine_numbers acc n)
        | None -> None)
     | None -> (None : nat option)
     )
